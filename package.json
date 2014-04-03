@@ -9,6 +9,6 @@
     "url": "https://github.com/floored/node-oculus"
   },
   "license": "Apache-2.0",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "main": "./nodeOculus.js"
 }
