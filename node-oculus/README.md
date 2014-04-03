@@ -23,7 +23,7 @@ Installation:
 Usage:
 ```javascript
 // 1. Create oculus object:
-var oculus = nodeOculus.createDeviceVR();
+var oculus = nodeOculus.createOculus();
 
 // 2. Discover sensor:
 oculus.discoverSensor();
