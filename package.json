@@ -2,11 +2,12 @@
   "name": "node-oculus",
   "version": "1.0",
   "description": "A simple node.js addon for interfacing with the Oculus Rift.",
+  "keywords": ["oculus", "node", "vr", "floored"],
   "url": "https://github.com/floored/node-oculus",
   "author": "Nicholas Brancaccio",
   "repository": {
     "type": "git",
     "url": "https://github.com/floored/node-oculus"
   },
-  "license": "Apache 2"
+  "license": "Apache-2.0"
 }
