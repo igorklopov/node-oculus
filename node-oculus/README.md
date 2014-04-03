@@ -37,4 +37,6 @@ var quat = oculus.getOrientationQuat();
 // 5. Feel responsibility to make something cool:
 ...
 
+// 6. Cleanup
+oculus.destroyResources();
 ``` 
