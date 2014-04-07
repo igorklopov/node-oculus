@@ -112,7 +112,7 @@ namespace nodeOculus {
     if (obj->hmd != NULL && obj->hmd->GetDeviceInfo(&info)) {
       res->Set(v8::String::NewSymbol("displayDeviceName"), v8::String::NewSymbol(info.DisplayDeviceName));
       res->Set(v8::String::NewSymbol("displayId"), JS_FLOAT(info.DisplayId));
-      res->Set(v8::String::NewSymbol("vScreenCenter"), JS_FLOAT(info.VScreenCenter));
+      res->Set(v8::String::NewSymbol("screenCenter"), JS_FLOAT(info.VScreenCenter));
       res->Set(v8::String::NewSymbol("eyeToScreenDistance"), JS_FLOAT(info.EyeToScreenDistance));
       res->Set(v8::String::NewSymbol("lensSeperationDistance"), JS_FLOAT(info.LensSeparationDistance));
       res->Set(v8::String::NewSymbol("interpupillaryDistance"), JS_FLOAT(info.InterpupillaryDistance));
