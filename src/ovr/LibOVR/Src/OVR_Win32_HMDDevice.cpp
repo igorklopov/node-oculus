@@ -263,12 +263,15 @@ void HMDDeviceFactory::EnumerateDevices(EnumerateVisitor& visitor)
             ::OutputDebugString(mbuff);
             */
 
+            wchar_t * flDeviceId = new wchar_t[strlen(ddm.DeviceID) + 1];
+            mbstowcs_s(0, flDeviceId, strlen(ddm.DeviceID) + 1, ddm.DeviceID, _TRUNCATE);
+
             // Our monitor hardware has string "RTD2205" in it
             // Nate's device "CVT0003"
-            if (wcsstr(ddm.DeviceID, L"RTD2205") || 
-                wcsstr(ddm.DeviceID, L"CVT0003") || 
-                wcsstr(ddm.DeviceID, L"MST0030") ||
-                wcsstr(ddm.DeviceID, L"OVR00") ) // Part of Oculus EDID.
+            if (wcsstr(flDeviceId, L"RTD2205") || 
+                wcsstr(flDeviceId, L"CVT0003") || 
+                wcsstr(flDeviceId, L"MST0030") ||
+                wcsstr(flDeviceId, L"OVR00") ) // Part of Oculus EDID.
             {
                 String deviceId(ddm.DeviceID);
                 String displayDeviceName(ddm.DeviceName);
@@ -300,7 +303,7 @@ void HMDDeviceFactory::EnumerateDevices(EnumerateVisitor& visitor)
 
                 HMDDeviceCreateDesc hmdCreateDesc(this, deviceId, displayDeviceName);
 				
-				if (wcsstr(ddm.DeviceID, L"OVR0002"))
+				if (wcsstr(flDeviceId, L"OVR0002"))
 				{
 					hmdCreateDesc.SetScreenParameters(mx, my, 1920, 1080, 0.12096f, 0.06804f);
 				}

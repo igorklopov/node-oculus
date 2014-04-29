@@ -1,21 +1,18 @@
 {
   "targets": [
+
     {
       "target_name": "nodeOculus",
 
       "include_dirs": [
         "src/ovr",
-
         "src/ovr/LibOVR/Src",
         "src/ovr/LibOVR/Include"
       ],
-
-	  "type": "static_library",
 	  
       "sources" : [
-		"src/ovr/LibOVR/Src/Kernel/OVR_Timer.cpp",
       	"src/ovr/3rdParty/TinyXml/tinyxml2.cpp",
-		"src/ovr/LibOVR/Src/OVR_Device.h",
+		    "src/ovr/LibOVR/Src/OVR_Device.h",
         "src/ovr/LibOVR/Src/OVR_DeviceHandle.cpp",
         "src/ovr/LibOVR/Src/OVR_DeviceImpl.cpp",
         "src/ovr/LibOVR/Src/OVR_JSON.cpp",
@@ -39,11 +36,11 @@
         "src/ovr/LibOVR/Src/Kernel/OVR_String_PathUtil.cpp",
         "src/ovr/LibOVR/Src/Kernel/OVR_SysFile.cpp",
         "src/ovr/LibOVR/Src/Kernel/OVR_System.cpp",
-        
+        "src/ovr/LibOVR/Src/Kernel/OVR_Timer.cpp",
         "src/ovr/LibOVR/Src/Kernel/OVR_UTF8Util.cpp",
         "src/ovr/LibOVR/Src/Util/Util_LatencyTest.cpp",
         "src/ovr/LibOVR/Src/Util/Util_Render_Stereo.cpp",
-		"nodeOculus.cc",
+        "nodeOculus.cc",
         "Device.cc"
       ],
 
@@ -75,7 +72,19 @@
         }],
         ['OS=="win"', {
           "sources": [
-          ]
+            "src/ovr/LibOVR/Src/Kernel/OVR_ThreadsWinAPI.cpp",
+            "src/ovr/LibOVR/Src/OVR_Win32_SensorDevice.cpp",
+            "src/ovr/LibOVR/Src/OVR_Win32_HMDDevice.cpp",
+            "src/ovr/LibOVR/Src/OVR_Win32_HIDDevice.cpp",
+            "src/ovr/LibOVR/Src/OVR_Win32_DeviceStatus.cpp",
+            "src/ovr/LibOVR/Src/OVR_Win32_DeviceManager.cpp"
+          ],
+          "link_settings": {
+            "libraries": [
+              "setupapi.lib",
+              "winmm.lib"
+            ]
+          }
         }],
       ]
     }
