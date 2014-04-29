@@ -10,11 +10,12 @@
         "src/ovr/LibOVR/Include"
       ],
 
+	  "type": "static_library",
+	  
       "sources" : [
-        "nodeOculus.cc",
-        "Device.cc",
-
+		"src/ovr/LibOVR/Src/Kernel/OVR_Timer.cpp",
       	"src/ovr/3rdParty/TinyXml/tinyxml2.cpp",
+		"src/ovr/LibOVR/Src/OVR_Device.h",
         "src/ovr/LibOVR/Src/OVR_DeviceHandle.cpp",
         "src/ovr/LibOVR/Src/OVR_DeviceImpl.cpp",
         "src/ovr/LibOVR/Src/OVR_JSON.cpp",
@@ -38,10 +39,12 @@
         "src/ovr/LibOVR/Src/Kernel/OVR_String_PathUtil.cpp",
         "src/ovr/LibOVR/Src/Kernel/OVR_SysFile.cpp",
         "src/ovr/LibOVR/Src/Kernel/OVR_System.cpp",
-        "src/ovr/LibOVR/Src/Kernel/OVR_Timer.cpp",
+        
         "src/ovr/LibOVR/Src/Kernel/OVR_UTF8Util.cpp",
         "src/ovr/LibOVR/Src/Util/Util_LatencyTest.cpp",
-        "src/ovr/LibOVR/Src/Util/Util_Render_Stereo.cpp"
+        "src/ovr/LibOVR/Src/Util/Util_Render_Stereo.cpp",
+		"nodeOculus.cc",
+        "Device.cc"
       ],
 
       "conditions" : [
