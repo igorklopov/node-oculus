@@ -4,13 +4,14 @@
 
 #include <node.h>
 #include "Device.h"
+#include <string>
+#include <sstream>
 
 namespace nodeOculus {
   v8::Persistent<v8::Function> Device::constructor;
 
   Device::Device() {
     printf("Initializing OVR.\n");
-    // OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
     ovr_Initialize();
     printf("OVR Initialized\n");
   }
@@ -23,30 +24,10 @@ namespace nodeOculus {
     SCOPE_IN;
     Device* obj = JS_OBJECT(Device, args.This());
 
-    // if (obj->sensor != NULL) { 
-    //   printf("Deleting Sensor.\n");
-    //   obj->sensor.Clear();
-    // }
-
     if (obj->hmd != NULL) {
       printf("Destroying HMD.\n");
       ovrHmd_Destroy(obj->hmd);
     }
-
-    // if (obj->hmd != NULL) { 
-    //   printf("Deleting HMD.\n");
-    //   obj->hmd.Clear();
-    // }
-
-    // if (obj->deviceManager != NULL) { 
-    //   printf("Deleting Device Manager.\n");
-    //   obj->deviceManager.Clear();
-    // }
-
-    // if (obj->sensorFusion != NULL) { 
-    //   printf("Deleting Sensor Fusion.\n");
-    //   delete obj->sensorFusion; 
-    // }
 
     printf("Shutting Down OVR.\n");
     ovr_Shutdown();
@@ -59,12 +40,6 @@ namespace nodeOculus {
     SCOPE_IN;
 
     Device* obj = JS_OBJECT(Device, args.This());
-
-    // printf("1: Creating DeviceManager.\n");
-    // obj->deviceManager = *OVR::DeviceManager::Create();
-
-    // printf("2: Creating SensorFusion.\n");
-    // obj->sensorFusion = new OVR::SensorFusion();
 
     printf("1: Detecting HMDs.\n");
     int numHMDs = ovrHmd_Detect();
@@ -95,52 +70,10 @@ namespace nodeOculus {
 
     ovrHmd_Destroy(obj->hmd);
 
-
-    
-
-    // if (obj->deviceManager != NULL) {
-    //   printf("3: Creating HMD by Enumerating Devices.\n");
-    //   obj->hmd = *obj->deviceManager->EnumerateDevices<HMDDevice>().CreateDevice();
-    //   if (obj->hmd != NULL) {
-    //     printf("3: HMD Created Sucessfully.\n\n");
-
-    //     printf("4: Creating Sensor.\n");
-    //     obj->sensor = *obj->hmd->GetSensor();
-    //     if (obj->sensor != NULL) {
-    //       printf("4: Sensor Created Sucessfully.\n\n");
-    //       if (obj->sensorFusion != NULL) {
-    //         printf("5: Attaching Sensor to SensorFusion.\n");
-    //         obj->sensorFusion->AttachToSensor(obj->sensor);
-    //         printf("5: Sensor Attached to SensorFusion.\n");
-    //         printf("Sensor Sucessfully discovered!\n");
-    //         SCOPE_OUT(JS_BOOL(true));
-    //       }
-    //     }
-    //   }
-    // }
-    
-    // printf("Sensor Discovery Failed.\n");
-
-    // if (obj->deviceManager != NULL) { 
-    //   printf("Deleting Device Manager.\n");
-    //   delete obj->deviceManager; 
-    // }
-    // if (obj->sensorFusion != NULL) { 
-    //   printf("Deleting Sensor Fusion.\n");
-    //   delete obj->sensorFusion; 
-    // }
-    // if (obj->hmd != NULL) { 
-    //   printf("Deleting hmd.\n");
-    //   delete obj->hmd; 
-    // }
-    // if (obj->sensor != NULL) { 
-    //   printf("Deleting sensor.\n");
-    //   delete obj->sensor; 
-    // }
-    
     SCOPE_OUT(JS_BOOL(false));
   }
 
+  // TODO update to DK2 if necessary
   JS_METHOD(Device, getDeviceInfo) {
     SCOPE_IN;
 
@@ -181,23 +114,98 @@ namespace nodeOculus {
   JS_METHOD(Device, getOrientationQuat) {
     SCOPE_IN;
 
-    // Device* obj = JS_OBJECT(Device, args.This());
+    Device* obj = JS_OBJECT(Device, args.This());
     v8::Local<v8::Array> res = args.Length() > 0 && args[0]->IsArray() ? v8::Array::Cast(*args[0]) : v8::Array::New(4);
+    ovrTrackingState trackingInfo;
 
-    // if (obj->sensor != NULL) {
-    //   OVR::Quatf orientation = obj->sensorFusion->GetOrientation();
-    //   res->Set(0, JS_FLOAT(orientation.x));
-    //   res->Set(1, JS_FLOAT(orientation.y));
-    //   res->Set(2, JS_FLOAT(orientation.z));
-    //   res->Set(3, JS_FLOAT(orientation.w));
-    // } else {
-    //   printf("obj->sensor is NULL\n");
-    //   res->Set(0, JS_FLOAT(0.0));
-    //   res->Set(1, JS_FLOAT(0.0));
-    //   res->Set(2, JS_FLOAT(0.0));
-    //   res->Set(3, JS_FLOAT(1.0));
-    // }
+    if (obj->hmd != NULL) {
+      trackingInfo = ovrHmd_GetTrackingState(obj->hmd, 0.0);
+      res->Set(0, JS_FLOAT(trackingInfo.HeadPose.ThePose.Orientation.x));
+      res->Set(1, JS_FLOAT(trackingInfo.HeadPose.ThePose.Orientation.y));
+      res->Set(2, JS_FLOAT(trackingInfo.HeadPose.ThePose.Orientation.z));
+      res->Set(3, JS_FLOAT(trackingInfo.HeadPose.ThePose.Orientation.w));
+    } else {
+      printf("obj->sensor is NULL\n");
+      res->Set(0, JS_FLOAT(0.0));
+      res->Set(1, JS_FLOAT(0.0));
+      res->Set(2, JS_FLOAT(0.0));
+      res->Set(3, JS_FLOAT(1.0));
+    }
 
+    SCOPE_OUT(res);
+  }
+
+  // alternative to to_string for pre-c++11 compilers
+  template <class T>
+  std::string toString(T num) {
+    std::ostringstream ss;
+    ss << num;
+    return ss.str();
+  }
+
+  JS_METHOD(Device, getTrackingData) {
+    SCOPE_IN;
+
+    Device * obj = JS_OBJECT(Device, args.This());
+    
+    ovrTrackingState trackingInfo;
+    std::string data = "";
+
+    if (obj->hmd != NULL) {
+      trackingInfo = ovrHmd_GetTrackingState(obj->hmd, 0.0f);
+      data += "--------------------------------------------\n";
+      data += ".HeadPose\n";
+      data += "  .ThePose\n";
+      data += "    .Orientation\n";
+      data += "      [ " + toString<float>(trackingInfo.HeadPose.ThePose.Orientation.x) + "\n";
+      data += "        " + toString<float>(trackingInfo.HeadPose.ThePose.Orientation.y) + "\n";
+      data += "        " + toString<float>(trackingInfo.HeadPose.ThePose.Orientation.z) + "\n";
+      data += "        " + toString<float>(trackingInfo.HeadPose.ThePose.Orientation.w) + " ]\n";
+      data += "    .Position\n";
+      data += "      [ " + toString<float>(trackingInfo.HeadPose.ThePose.Position.x) + "\n";
+      data += "        " + toString<float>(trackingInfo.HeadPose.ThePose.Position.y) + "\n";
+      data += "        " + toString<float>(trackingInfo.HeadPose.ThePose.Position.z) + " ]\n";
+      data += "  .AngularVelocity\n";
+      data += "    [ " + toString<float>(trackingInfo.HeadPose.AngularVelocity.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.AngularVelocity.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.AngularVelocity.z) + " ]\n";
+      data += "  .LinearVelocity\n";
+      data += "    [ " + toString<float>(trackingInfo.HeadPose.LinearVelocity.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.LinearVelocity.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.LinearVelocity.z) + " ]\n";
+      data += "  .AngularAcceleration\n";
+      data += "    [ " + toString<float>(trackingInfo.HeadPose.AngularAcceleration.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.AngularAcceleration.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.AngularAcceleration.z) + " ]\n";
+      data += "  .LinearAcceleration\n";
+      data += "    [ " + toString<float>(trackingInfo.HeadPose.LinearAcceleration.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.LinearAcceleration.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.HeadPose.LinearAcceleration.z) + " ]\n";
+      data += "  .TimeInSeconds\n";
+      data += "    " + toString<double>(trackingInfo.HeadPose.TimeInSeconds) + "\n\n";
+      data += ".CameraPose\n";
+      data += "  .Orientation\n";
+      data += "    [ " + toString<float>(trackingInfo.CameraPose.Orientation.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.CameraPose.Orientation.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.CameraPose.Orientation.z) + "\n";
+      data += "      " + toString<float>(trackingInfo.CameraPose.Orientation.w) + " ]\n";
+      data += "  .Position\n";
+      data += "    [ " + toString<float>(trackingInfo.CameraPose.Position.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.CameraPose.Position.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.CameraPose.Position.z) + " ]\n";
+      data += ".LeveledCameraPose\n";
+      data += "  .Orientation\n";
+      data += "    [ " + toString<float>(trackingInfo.LeveledCameraPose.Orientation.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.LeveledCameraPose.Orientation.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.LeveledCameraPose.Orientation.z) + "\n";
+      data += "      " + toString<float>(trackingInfo.LeveledCameraPose.Orientation.w) + " ]\n";
+      data += "  .Position\n";
+      data += "    [ " + toString<float>(trackingInfo.LeveledCameraPose.Position.x) + "\n";
+      data += "      " + toString<float>(trackingInfo.LeveledCameraPose.Position.y) + "\n";
+      data += "      " + toString<float>(trackingInfo.LeveledCameraPose.Position.z) + " ]\n";
+    }
+
+    v8::Local<v8::String> res = v8::String::New(data.c_str(), data.length());
     SCOPE_OUT(res);
   }
 
@@ -212,6 +220,7 @@ namespace nodeOculus {
     JS_PROTOTYPE(tpl, discoverSensor);
     JS_PROTOTYPE(tpl, getDeviceInfo);
     JS_PROTOTYPE(tpl, getOrientationQuat);
+    JS_PROTOTYPE(tpl, getTrackingData);
 
     // Declare contructor
     constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());

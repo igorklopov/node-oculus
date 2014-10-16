@@ -7,7 +7,8 @@ if (oculus.discoverSensor()) {
 
   console.log('about to log some orientations');
 
-  logOrientation();
+  // logOrientation();
+  logTrackingData();
 }
 
 function logOrientation() {
@@ -16,6 +17,7 @@ function logOrientation() {
 	setTimeout(logOrientation, 500);
 }
 
-// oculus.destroyResources();
-
-console.log("Test complete.\n");
+function logTrackingData() {
+	console.log(oculus.getTrackingData());
+	setTimeout(logTrackingData, 500);
+}
