@@ -25,11 +25,6 @@ namespace nodeOculus {
       static v8::Persistent<v8::Function> constructor;
 
       ovrHmd hmd; // already a pointer
-
-      // OVR::Ptr<OVR::DeviceManager> deviceManager;
-      // OVR::Ptr<OVR::HMDDevice> hmd;
-      // OVR::Ptr<OVR::SensorDevice> sensor;
-      // OVR::SensorFusion* sensorFusion;
   };
 }
 

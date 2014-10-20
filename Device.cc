@@ -44,8 +44,6 @@ namespace nodeOculus {
     printf("1: Detecting HMDs.\n");
     int numHMDs = ovrHmd_Detect();
 
-    printf("before creating, HMD == NULL? %s\n", (obj->hmd == NULL ? "true" : "false"));
-
     if (numHMDs > 0) {
       printf("2: Creating HMD.\n");
       obj->hmd = ovrHmd_Create(0);
@@ -66,7 +64,7 @@ namespace nodeOculus {
       }
     }
 
-    printf("FAILED\n");
+    printf("FAILED (is the Oculus plugged in?)\n");
 
     ovrHmd_Destroy(obj->hmd);
 
@@ -77,36 +75,35 @@ namespace nodeOculus {
   JS_METHOD(Device, getDeviceInfo) {
     SCOPE_IN;
 
-    // Device* obj = JS_OBJECT(Device, args.This());
+    Device* obj = JS_OBJECT(Device, args.This());
     v8::Local<v8::Object> res = v8::Object::New();
 
-    // OVR::HMDInfo info;
-    // if (obj->hmd != NULL && obj->hmd->GetDeviceInfo(&info)) {
-    //   res->Set(v8::String::NewSymbol("displayDeviceName"), v8::String::NewSymbol(info.DisplayDeviceName));
-    //   res->Set(v8::String::NewSymbol("displayId"), JS_FLOAT(info.DisplayId));
-    //   res->Set(v8::String::NewSymbol("screenCenter"), JS_FLOAT(info.VScreenCenter));
-    //   res->Set(v8::String::NewSymbol("eyeToScreenDistance"), JS_FLOAT(info.EyeToScreenDistance));
-    //   res->Set(v8::String::NewSymbol("lensSeperationDistance"), JS_FLOAT(info.LensSeparationDistance));
-    //   res->Set(v8::String::NewSymbol("interpupillaryDistance"), JS_FLOAT(info.InterpupillaryDistance));
+    if (obj->hmd != NULL) {
+      deviceInfo info = ovrHmd_GetDeviceInfo(obj->hmd);
+      res->Set(v8::String::NewSymbol("displayDeviceName"), v8::String::NewSymbol(info.DisplayDeviceName));
+      res->Set(v8::String::NewSymbol("displayId"), JS_FLOAT(info.DisplayId));
+      res->Set(v8::String::NewSymbol("lensSeperationDistance"), JS_FLOAT(info.LensSeparationDistance));
+      res->Set(v8::String::NewSymbol("eyeToScreenDistance"), JS_FLOAT(info.EyeToScreenDistance));
+      res->Set(v8::String::NewSymbol("screenCenter"), JS_FLOAT(info.ScreenCenter));
+      res->Set(v8::String::NewSymbol("interpupillaryDistance"), JS_FLOAT(info.InterpupillaryDistance));
 
+      v8::Local<v8::Array> screenSize = v8::Array::New(2);
+      screenSize->Set(0, JS_FLOAT(info.ScreenSizeW));
+      screenSize->Set(1, JS_FLOAT(info.ScreenSizeH));
+      res->Set(v8::String::NewSymbol("screenSize"), screenSize);
 
-    //   v8::Local<v8::Array> screenSize = v8::Array::New(2);
-    //   screenSize->Set(0, JS_FLOAT(info.HScreenSize));
-    //   screenSize->Set(1, JS_FLOAT(info.VScreenSize));
-    //   res->Set(v8::String::NewSymbol("screenSize"), screenSize);
+      v8::Local<v8::Array> resolution = v8::Array::New(2);
+      resolution->Set(0, JS_FLOAT(info.ResolutionW));
+      resolution->Set(1, JS_FLOAT(info.ResolutionH));
+      res->Set(v8::String::NewSymbol("resolution"), resolution);
 
-    //   v8::Local<v8::Array> resolution = v8::Array::New(2);
-    //   resolution->Set(0, JS_FLOAT(info.HResolution));
-    //   resolution->Set(1, JS_FLOAT(info.VResolution));
-    //   res->Set(v8::String::NewSymbol("resolution"), resolution);
-
-    //   v8::Local<v8::Array> distortion = v8::Array::New(4);
-    //   distortion->Set(0, JS_FLOAT(info.DistortionK[0]));
-    //   distortion->Set(1, JS_FLOAT(info.DistortionK[1]));
-    //   distortion->Set(2, JS_FLOAT(info.DistortionK[2]));
-    //   distortion->Set(3, JS_FLOAT(info.DistortionK[3]));
-    //   res->Set(v8::String::NewSymbol("distortion"), distortion);
-    // }
+      v8::Local<v8::Array> distortion = v8::Array::New(4);
+      distortion->Set(0, JS_FLOAT(info.DistortionK[0]));
+      distortion->Set(1, JS_FLOAT(info.DistortionK[1]));
+      distortion->Set(2, JS_FLOAT(info.DistortionK[2]));
+      distortion->Set(3, JS_FLOAT(info.DistortionK[3]));
+      res->Set(v8::String::NewSymbol("distortion"), distortion);
+    }
 
     SCOPE_OUT(res);
   }
@@ -125,7 +122,7 @@ namespace nodeOculus {
       res->Set(2, JS_FLOAT(trackingInfo.HeadPose.ThePose.Orientation.z));
       res->Set(3, JS_FLOAT(trackingInfo.HeadPose.ThePose.Orientation.w));
     } else {
-      printf("obj->sensor is NULL\n");
+      printf("obj->hmd is NULL\n");
       res->Set(0, JS_FLOAT(0.0));
       res->Set(1, JS_FLOAT(0.0));
       res->Set(2, JS_FLOAT(0.0));
@@ -153,7 +150,6 @@ namespace nodeOculus {
 
     if (obj->hmd != NULL) {
       trackingInfo = ovrHmd_GetTrackingState(obj->hmd, 0.0f);
-      data += "--------------------------------------------\n";
       data += ".HeadPose\n";
       data += "  .ThePose\n";
       data += "    .Orientation\n";
