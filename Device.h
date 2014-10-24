@@ -20,6 +20,7 @@ namespace nodeOculus {
       static JS_FUNCTION(getDeviceInfo);
       static JS_FUNCTION(getOrientationQuat);
       static JS_FUNCTION(getTrackingData);
+      // static JS_FUNCTION(initDistortionMeshes);
 
       static JS_FUNCTION(New);
       static v8::Persistent<v8::Function> constructor;

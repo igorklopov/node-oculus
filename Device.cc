@@ -86,6 +86,8 @@ namespace nodeOculus {
       res->Set(v8::String::NewSymbol("eyeToScreenDistance"), JS_FLOAT(info.EyeToScreenDistance));
       res->Set(v8::String::NewSymbol("screenCenter"), JS_FLOAT(info.ScreenCenter));
       res->Set(v8::String::NewSymbol("interpupillaryDistance"), JS_FLOAT(info.InterpupillaryDistance));
+      res->Set(v8::String::NewSymbol("leftMaxR"), JS_FLOAT(info.LeftMaxR));
+      res->Set(v8::String::NewSymbol("rightMaxR"), JS_FLOAT(info.RightMaxR));
 
       v8::Local<v8::Array> screenSize = v8::Array::New(2);
       screenSize->Set(0, JS_FLOAT(info.ScreenSizeW));
@@ -97,12 +99,55 @@ namespace nodeOculus {
       resolution->Set(1, JS_FLOAT(info.ResolutionH));
       res->Set(v8::String::NewSymbol("resolution"), resolution);
 
-      v8::Local<v8::Array> distortion = v8::Array::New(4);
-      distortion->Set(0, JS_FLOAT(info.DistortionK[0]));
-      distortion->Set(1, JS_FLOAT(info.DistortionK[1]));
-      distortion->Set(2, JS_FLOAT(info.DistortionK[2]));
-      distortion->Set(3, JS_FLOAT(info.DistortionK[3]));
-      res->Set(v8::String::NewSymbol("distortion"), distortion);
+      // distortion coefficients
+      v8::Local<v8::Array> leftDistortion = v8::Array::New(11);
+      v8::Local<v8::Array> rightDistortion = v8::Array::New(11);
+      for(int i=0; i<11; i++) {
+        leftDistortion->Set(i,  JS_FLOAT(info.LeftDistortionK[i]));
+        rightDistortion->Set(i, JS_FLOAT(info.RightDistortionK[i]));
+      }
+      res->Set(v8::String::NewSymbol("leftDistortion"), leftDistortion);
+      res->Set(v8::String::NewSymbol("rightDistortion"), rightDistortion);
+
+      // chromatic aberration coefficients
+      v8::Local<v8::Array> leftChromaticAberration = v8::Array::New(4);
+      v8::Local<v8::Array> rightChromaticAberration = v8::Array::New(4);
+      for(int i=0; i<4; i++) {
+        leftChromaticAberration->Set(i,  JS_FLOAT(info.LeftChromaticAberration[i]));
+        rightChromaticAberration->Set(i, JS_FLOAT(info.RightChromaticAberration[i]));
+      }
+      res->Set(v8::String::NewSymbol("leftChromaticAberration"), leftChromaticAberration);
+      res->Set(v8::String::NewSymbol("rightChromaticAberration"), rightChromaticAberration);
+
+      // some distortion info
+      v8::Local<v8::Array> leftDistortionTanEyeAngleScale = v8::Array::New(2);
+      v8::Local<v8::Array> rightDistortionTanEyeAngleScale = v8::Array::New(2);
+      v8::Local<v8::Array> leftDistortionLensCenter = v8::Array::New(2);
+      v8::Local<v8::Array> rightDistortionLensCenter = v8::Array::New(2);
+      for(int i=0; i<2; i++) {
+        leftDistortionTanEyeAngleScale->Set(i,  JS_FLOAT(info.LeftDistortionTanEyeAngleScale[i]));
+        rightDistortionTanEyeAngleScale->Set(i, JS_FLOAT(info.RightDistortionTanEyeAngleScale[i]));
+        leftDistortionLensCenter->Set(i,  JS_FLOAT(info.LeftDistortionLensCenter[i]));
+        rightDistortionLensCenter->Set(i, JS_FLOAT(info.RightDistortionLensCenter[i]));
+      }
+      res->Set(v8::String::NewSymbol("leftDistortionTanEyeAngleScale"), leftDistortionTanEyeAngleScale);
+      res->Set(v8::String::NewSymbol("rightDistortionTanEyeAngleScale"), rightDistortionTanEyeAngleScale);
+      res->Set(v8::String::NewSymbol("leftDistortionLensCenter"), leftDistortionLensCenter);
+      res->Set(v8::String::NewSymbol("rightDistortionLensCenter"), rightDistortionLensCenter);
+
+      v8::Local<v8::Array> leftEyeFov = v8::Array::New(4);
+      leftEyeFov->Set(0, JS_FLOAT(info.LeftEyeFov[0]));
+      leftEyeFov->Set(1, JS_FLOAT(info.LeftEyeFov[1]));
+      leftEyeFov->Set(2, JS_FLOAT(info.LeftEyeFov[2]));
+      leftEyeFov->Set(3, JS_FLOAT(info.LeftEyeFov[3]));
+      res->Set(v8::String::NewSymbol("leftEyeFov"), leftEyeFov);
+
+      v8::Local<v8::Array> rightEyeFov = v8::Array::New(4);
+      rightEyeFov->Set(0, JS_FLOAT(info.RightEyeFov[0]));
+      rightEyeFov->Set(1, JS_FLOAT(info.RightEyeFov[1]));
+      rightEyeFov->Set(2, JS_FLOAT(info.RightEyeFov[2]));
+      rightEyeFov->Set(3, JS_FLOAT(info.RightEyeFov[3]));
+      res->Set(v8::String::NewSymbol("rightEyeFov"), rightEyeFov);
     }
 
     SCOPE_OUT(res);
@@ -205,6 +250,18 @@ namespace nodeOculus {
     SCOPE_OUT(res);
   }
 
+  // JS_METHOD(Device, initDistortionMesh) {
+  //   SCOPE_IN;
+
+  //   Device* obj = JS_OBJECT(Device, args.This());
+  //   v8::Local<v8::Object> res = v8::Object::New();
+
+  //   ovrDistortionMesh meshData;
+  //   ovrHmd_CreateDistortionMesh(obj->hmd, )
+
+  //   SCOPE_OUT(res);
+  // }
+
   void Device::Init(v8::Handle<v8::Object> exports) {
     // Prepare constructor template
     v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
@@ -217,6 +274,7 @@ namespace nodeOculus {
     JS_PROTOTYPE(tpl, getDeviceInfo);
     JS_PROTOTYPE(tpl, getOrientationQuat);
     JS_PROTOTYPE(tpl, getTrackingData);
+    // JS_PROTOTYPE(tpl, initDistortionMesh);
 
     // Declare contructor
     constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
