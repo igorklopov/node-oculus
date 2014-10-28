@@ -185,6 +185,64 @@ namespace nodeOculus {
     return ss.str();
   }
 
+  // return a flat row-major projection matrix
+  JS_METHOD(Device, getOvrMatrix4f_Projection) {
+    SCOPE_IN;
+    Device * obj = JS_OBJECT(Device, args.This());
+    v8::Local<v8::Array> res = v8::Array::New(16);
+
+    ovrFovPort fov;
+    float znear;
+    float zfar;
+    ovrBool rightHanded;
+
+    // if an object is passed, use that to construct our fov struct; if not, use hmd's default with input eye index (or 0 if no index specified)
+    if (args[0]->IsObject()) {
+      v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(args[0]);
+      fov.UpTan = (float) object->Get(v8::String::New("UpTan"))->NumberValue();
+      fov.DownTan = (float) object->Get(v8::String::New("DownTan"))->NumberValue();
+      fov.LeftTan = (float) object->Get(v8::String::New("LeftTan"))->NumberValue();
+      fov.RightTan = (float) object->Get(v8::String::New("RightTan"))->NumberValue();
+    } else if (args[0]->IsNumber()) {
+      int eye = args[0]->Int32Value();
+      fov = obj->hmd->DefaultEyeFov[eye];
+    } else {
+      fov = obj->hmd->DefaultEyeFov[0];
+    }
+    
+    // defaults to 0.1
+    if (args[1]->IsNumber()) {
+      znear = (float) args[1]->NumberValue();
+    } else {
+      znear = 0.1;
+    }
+
+    // defaults to 1000
+    if (args[2]->IsNumber()) {
+      zfar = (float) args[2]->NumberValue();
+    } else {
+      zfar = 1000.0f;
+    }
+
+    // defaults to true
+    if (args[3]->IsNumber()) {
+      rightHanded = (ovrBool) args[3]->Int32Value();
+    } else {
+      rightHanded = (ovrBool) 1;
+    }
+
+    ovrMatrix4f proj = ovrMatrix4f_Projection(fov, znear, zfar, rightHanded);
+
+    // stores in row-major order
+    for (int i=0; i<4; i++) {
+      for (int j=0; j<4; j++) {
+        res->Set(4 * i + j, JS_FLOAT(proj.M[i][j]));
+      }
+    }
+
+    SCOPE_OUT(res);
+  }
+
   JS_METHOD(Device, getTrackingData) {
     SCOPE_IN;
 
@@ -250,18 +308,6 @@ namespace nodeOculus {
     SCOPE_OUT(res);
   }
 
-  // JS_METHOD(Device, initDistortionMesh) {
-  //   SCOPE_IN;
-
-  //   Device* obj = JS_OBJECT(Device, args.This());
-  //   v8::Local<v8::Object> res = v8::Object::New();
-
-  //   ovrDistortionMesh meshData;
-  //   ovrHmd_CreateDistortionMesh(obj->hmd, )
-
-  //   SCOPE_OUT(res);
-  // }
-
   void Device::Init(v8::Handle<v8::Object> exports) {
     // Prepare constructor template
     v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
@@ -274,7 +320,7 @@ namespace nodeOculus {
     JS_PROTOTYPE(tpl, getDeviceInfo);
     JS_PROTOTYPE(tpl, getOrientationQuat);
     JS_PROTOTYPE(tpl, getTrackingData);
-    // JS_PROTOTYPE(tpl, initDistortionMesh);
+    JS_PROTOTYPE(tpl, getOvrMatrix4f_Projection);
 
     // Declare contructor
     constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());

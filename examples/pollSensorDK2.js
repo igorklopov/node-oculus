@@ -5,7 +5,8 @@ var oculus = nodeOculus.createOculus();
 if (oculus.discoverSensor()) {
   // logOrientation();
   // logTrackingData();
-  printDeviceInfo(oculus.getDeviceInfo());
+  // printDeviceInfo(oculus.getDeviceInfo());
+  logProjectionMatrix();
 }
 
 function logOrientation() {
@@ -39,5 +40,23 @@ function printDeviceInfo(deviceInfo) {
 		} else {
 			console.log(prop + ': ' + deviceInfo[prop]);
 		}
+	}
+}
+
+function logProjectionMatrix() {
+	var proj = oculus.getOvrMatrix4f_Projection({
+			UpTan: 1.01,
+			DownTan: 1.02,
+			LeftTan: 1.03,
+			RightTan: 1.04
+		}, 0.2, 2000, 0);
+
+	console.log("projection matrix: ");
+	for (var i=0; i<4; i++) {
+		var str = "  ";
+		for (var j=0; j<4; j++) {
+			str += proj[4 * i + j].toFixed(6) + "  ";
+		}
+		console.log(str);
 	}
 }
