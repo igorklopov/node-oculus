@@ -3,10 +3,17 @@ var nodeOculus = require('../build/Release/nodeOculus');
 var oculus = nodeOculus.createOculus();
 
 if (oculus.discoverSensor()) {
+	logPositionDeltas();
   // logOrientation();
   // logTrackingData();
   // printDeviceInfo(oculus.getDeviceInfo());
-  logProjectionMatrix();
+  // logProjectionMatrix();
+}
+
+function logPositionDeltas() {
+	var deltas = new Float32Array(3);
+	console.log(oculus.getPositionDeltas(deltas));
+	setTimeout(logPositionDeltas, 500);
 }
 
 function logOrientation() {

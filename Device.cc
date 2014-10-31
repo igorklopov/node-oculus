@@ -10,7 +10,9 @@
 namespace nodeOculus {
   v8::Persistent<v8::Function> Device::constructor;
 
-  Device::Device() {
+  Device::Device()
+    : lastX(0.0), lastY(0.0), lastZ(0.0)
+  {
     printf("Initializing OVR.\n");
     ovr_Initialize();
     printf("OVR Initialized\n");
@@ -148,6 +150,35 @@ namespace nodeOculus {
       rightEyeFov->Set(2, JS_FLOAT(info.RightEyeFov[2]));
       rightEyeFov->Set(3, JS_FLOAT(info.RightEyeFov[3]));
       res->Set(v8::String::NewSymbol("rightEyeFov"), rightEyeFov);
+    }
+
+    SCOPE_OUT(res);
+  }
+
+  // returns the delta from when the positional tracking data was last requested
+  JS_METHOD(Device, getPositionDeltas) {
+    SCOPE_IN;
+
+    Device* obj = JS_OBJECT(Device, args.This());
+    v8::Local<v8::Array> res = args.Length() > 0 && args[0]->IsArray() ? v8::Array::Cast(*args[0]) : v8::Array::New(3);
+    ovrTrackingState trackingInfo;
+
+    if (obj->hmd != NULL) {
+      trackingInfo = ovrHmd_GetTrackingState(obj->hmd, 0.0);
+      float currX = trackingInfo.HeadPose.ThePose.Position.x;
+      float currY = trackingInfo.HeadPose.ThePose.Position.y;
+      float currZ = trackingInfo.HeadPose.ThePose.Position.z;
+      res->Set(0, JS_FLOAT(currX - obj->lastX));
+      res->Set(1, JS_FLOAT(currY - obj->lastY));
+      res->Set(2, JS_FLOAT(currZ - obj->lastZ));
+      obj->lastX = currX;
+      obj->lastY = currY;
+      obj->lastZ = currZ;
+    } else {
+      printf("obj->hmd is NULL\n");
+      res->Set(0, JS_FLOAT(0.0));
+      res->Set(1, JS_FLOAT(0.0));
+      res->Set(2, JS_FLOAT(0.0));
     }
 
     SCOPE_OUT(res);
@@ -318,6 +349,7 @@ namespace nodeOculus {
     JS_PROTOTYPE(tpl, destroyResources);
     JS_PROTOTYPE(tpl, discoverSensor);
     JS_PROTOTYPE(tpl, getDeviceInfo);
+    JS_PROTOTYPE(tpl, getPositionDeltas);
     JS_PROTOTYPE(tpl, getOrientationQuat);
     JS_PROTOTYPE(tpl, getTrackingData);
     JS_PROTOTYPE(tpl, getOvrMatrix4f_Projection);

@@ -18,6 +18,7 @@ namespace nodeOculus {
       static JS_FUNCTION(destroyResources);
       static JS_FUNCTION(discoverSensor);
       static JS_FUNCTION(getDeviceInfo);
+      static JS_FUNCTION(getPositionDeltas);
       static JS_FUNCTION(getOrientationQuat);
       static JS_FUNCTION(getTrackingData);
       static JS_FUNCTION(getOvrMatrix4f_Projection);
@@ -26,6 +27,9 @@ namespace nodeOculus {
       static v8::Persistent<v8::Function> constructor;
 
       ovrHmd hmd; // already a pointer
+      float lastX;
+      float lastY;
+      float lastZ;
   };
 }
 
