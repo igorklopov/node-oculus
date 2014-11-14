@@ -68,7 +68,9 @@ namespace nodeOculus {
 
     printf("FAILED (is the Oculus plugged in?)\n");
 
-    ovrHmd_Destroy(obj->hmd);
+    if (obj->hmd != NULL) {
+      ovrHmd_Destroy(obj->hmd);
+    }
 
     SCOPE_OUT(JS_BOOL(false));
   }
