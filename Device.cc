@@ -63,14 +63,11 @@ namespace nodeOculus {
             SCOPE_OUT(JS_BOOL(true));
           }
         }
+        ovrHmd_Destroy(obj->hmd);
       }
     }
 
     printf("FAILED (is the Oculus plugged in?)\n");
-
-    if (obj->hmd != NULL) {
-      ovrHmd_Destroy(obj->hmd);
-    }
 
     SCOPE_OUT(JS_BOOL(false));
   }
@@ -223,6 +220,10 @@ namespace nodeOculus {
     SCOPE_IN;
     Device * obj = JS_OBJECT(Device, args.This());
     v8::Local<v8::Array> res = v8::Array::New(16);
+
+    if (obj->hmd == NULL) {
+      SCOPE_OUT(res);
+    }
 
     ovrFovPort fov;
     float znear;

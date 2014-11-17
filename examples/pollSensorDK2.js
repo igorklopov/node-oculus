@@ -4,10 +4,10 @@ var oculus = nodeOculus.createOculus();
 
 if (oculus.discoverSensor()) {
 	logPositionDeltas();
-  // logOrientation();
-  // logTrackingData();
-  // printDeviceInfo(oculus.getDeviceInfo());
-  // logProjectionMatrix();
+    logOrientation();
+	logTrackingData();
+	printDeviceInfo(oculus.getDeviceInfo());
+	logProjectionMatrix();
 }
 
 function logPositionDeltas() {
