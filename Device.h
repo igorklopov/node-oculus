@@ -26,7 +26,7 @@ namespace nodeOculus {
       static JS_FUNCTION(New);
       static v8::Persistent<v8::Function> constructor;
 
-      ovrHmd hmd; // already a pointer
+      ovrHmd hmd; // pointer
       float lastX;
       float lastY;
       float lastZ;

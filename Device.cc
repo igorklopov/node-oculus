@@ -72,7 +72,6 @@ namespace nodeOculus {
     SCOPE_OUT(JS_BOOL(false));
   }
 
-  // TODO update to DK2 if necessary
   JS_METHOD(Device, getDeviceInfo) {
     SCOPE_IN;
 
@@ -103,7 +102,7 @@ namespace nodeOculus {
       // distortion coefficients
       v8::Local<v8::Array> leftDistortion = v8::Array::New(11);
       v8::Local<v8::Array> rightDistortion = v8::Array::New(11);
-      for(int i=0; i<11; i++) {
+      for(int i = 0; i < 11; i++) {
         leftDistortion->Set(i,  JS_FLOAT(info.LeftDistortionK[i]));
         rightDistortion->Set(i, JS_FLOAT(info.RightDistortionK[i]));
       }
@@ -113,7 +112,7 @@ namespace nodeOculus {
       // chromatic aberration coefficients
       v8::Local<v8::Array> leftChromaticAberration = v8::Array::New(4);
       v8::Local<v8::Array> rightChromaticAberration = v8::Array::New(4);
-      for(int i=0; i<4; i++) {
+      for(int i = 0; i < 4; i++) {
         leftChromaticAberration->Set(i,  JS_FLOAT(info.LeftChromaticAberration[i]));
         rightChromaticAberration->Set(i, JS_FLOAT(info.RightChromaticAberration[i]));
       }
@@ -125,7 +124,7 @@ namespace nodeOculus {
       v8::Local<v8::Array> rightDistortionTanEyeAngleScale = v8::Array::New(2);
       v8::Local<v8::Array> leftDistortionLensCenter = v8::Array::New(2);
       v8::Local<v8::Array> rightDistortionLensCenter = v8::Array::New(2);
-      for(int i=0; i<2; i++) {
+      for(int i = 0; i < 2; i++) {
         leftDistortionTanEyeAngleScale->Set(i,  JS_FLOAT(info.LeftDistortionTanEyeAngleScale[i]));
         rightDistortionTanEyeAngleScale->Set(i, JS_FLOAT(info.RightDistortionTanEyeAngleScale[i]));
         leftDistortionLensCenter->Set(i,  JS_FLOAT(info.LeftDistortionLensCenter[i]));
@@ -268,8 +267,8 @@ namespace nodeOculus {
     ovrMatrix4f proj = ovrMatrix4f_Projection(fov, znear, zfar, rightHanded);
 
     // stores in row-major order
-    for (int i=0; i<4; i++) {
-      for (int j=0; j<4; j++) {
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
         res->Set(4 * i + j, JS_FLOAT(proj.M[i][j]));
       }
     }
