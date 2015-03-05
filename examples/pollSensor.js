@@ -5,12 +5,17 @@ var oculus = nodeOculus.createOculus();
 if (oculus.discoverSensor()) {
   console.log(oculus.getDeviceInfo());
 
-  var quat = new Float32Array(4);
-  for (var i=0; i<10; ++i) {
-    console.log(oculus.getOrientationQuat(quat));
-  }
+  console.log('about to log some orientations');
+
+  logOrientation();
 }
 
-oculus.destroyResources();
+function logOrientation() {
+	var quat = new Float32Array(4);
+	console.log(oculus.getOrientationQuat(quat));
+	setTimeout(logOrientation, 500);
+}
+
+// oculus.destroyResources();
 
 console.log("Test complete.\n");
