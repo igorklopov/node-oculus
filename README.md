@@ -1,5 +1,7 @@
 node-oculus is a simple node.js addon for interfacing with the Oculus Rift. 
 
+WARNING: currently under maintenance to update for Oculus Rift DK2 compatibility. We will be updating the README shortly.
+
 Goals: 
 	Create a simple node interface to the Oculus Rift.
 	Provide a clean start point for complex node based oculus projects to evolve from.
