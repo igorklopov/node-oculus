@@ -12,9 +12,11 @@ Based on:
 	[node-hmd](https://github.com/Geocent/node-hmd)
 
 
-
 Dependencies:
 	node-gyp if not already availible in your distribution.
+
+Compatibility:
+  node-oculus has been tested with node v0.10.28 on Mac.
 
 Installation:
 	1. Pull the repository.
