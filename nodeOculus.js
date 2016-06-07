@@ -1,1 +1,1 @@
-module.exports = require(__dirname + "/build/Release/nodeOculus.node");
+module.exports = require("bindings")("nodeOculus.node");
