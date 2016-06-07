@@ -1,6 +1,5 @@
-var nodeOculus = require('../build/Release/nodeOculus');
-
-var oculus = nodeOculus.createOculus();
+var Oculus = require('../').Device;
+var oculus = new Oculus();
 
 if (oculus.discoverSensor()) {
 	logPositionDeltas();

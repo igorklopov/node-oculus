@@ -32,7 +32,6 @@ namespace nodeOculus {
   }
 
 /*
-
   JS_METHOD(Device, discoverSensor) {
     SCOPE_IN;
 
@@ -335,46 +334,33 @@ namespace nodeOculus {
     v8::Local<v8::String> res = v8::String::New(data.c_str(), data.length());
     SCOPE_OUT(res);
   }
+*/
 
-  void Device::Init(v8::Handle<v8::Object> exports) {
+  void Device::Init(v8::Handle<v8::Object> target) {
+    Nan::HandleScope scope;
+
     // Prepare constructor template
-    v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
-    tpl->SetClassName(v8::String::NewSymbol("Device"));    
+    v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
+    tpl->SetClassName(Nan::New<v8::String>("Device").ToLocalChecked());
     tpl->InstanceTemplate()->SetInternalFieldCount(4);
 
-    // Prototype
-    JS_PROTOTYPE(tpl, destroyResources);
-    JS_PROTOTYPE(tpl, discoverSensor);
-    JS_PROTOTYPE(tpl, getDeviceInfo);
-    JS_PROTOTYPE(tpl, getPositionDeltas);
-    JS_PROTOTYPE(tpl, getOrientationQuat);
-    JS_PROTOTYPE(tpl, getTrackingData);
-    JS_PROTOTYPE(tpl, getOvrMatrix4f_Projection);
+    Nan::SetPrototypeMethod(tpl, "destroyResources", destroyResources);
+    // Nan::SetPrototypeMethod(tpl, "discoverSensor", discoverSensor);
+    // Nan::SetPrototypeMethod(tpl, "getDeviceInfo", getDeviceInfo);
+    // Nan::SetPrototypeMethod(tpl, "getPositionDeltas", getPositionDeltas);
+    // Nan::SetPrototypeMethod(tpl, "getOrientationQuat", getOrientationQuat);
+    // Nan::SetPrototypeMethod(tpl, "getTrackingData", getTrackingData);
+    // Nan::SetPrototypeMethod(tpl, "getOvrMatrix4f_Projection", getOvrMatrix4f_Projection);
 
-    // Declare contructor
-    constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
-    exports->Set(v8::String::NewSymbol("Device"), constructor);
+    // Declare constructor
+    constructor.Reset(tpl);
+    Nan::Set(target, Nan::New<v8::String>("Device").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   }
 
-  JS_METHOD(Device, New) {
-    SCOPE_IN;
-
+  NAN_METHOD(Device::New) {
     Device* device = new Device();
-    device->Wrap(args.This());
-
-    SCOPE_OUT(args.This());
+    device->Wrap(info.This());
+    info.GetReturnValue().Set(info.This());
   }
-
-  JS_METHOD(Device, NewInstance) {
-    SCOPE_IN;
-
-    const unsigned argc = 1;
-    v8::Handle<v8::Value> argv[argc] = { args[0] };
-    v8::Local<v8::Object> instance = constructor->NewInstance(argc, argv);
-
-    SCOPE_OUT(instance);
-  }
-
-*/
 
 }
