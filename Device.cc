@@ -9,10 +9,10 @@ namespace nodeOculus {
   Device::Device()
     : lastX(0.0), lastY(0.0), lastZ(0.0)
   {
-    printf("Initializing OVR.\n");
+    printf("Initializing OVR\n");
     ovrResult result = ovr_Initialize(nullptr);
-    // TODO check OVR_SUCCESS(result) // "Failed to initialize libOVR."
-    printf("OVR Initialized.\n");
+    // TODO check OVR_SUCCESS(result) // "Failed to initialize libOVR"
+    printf("OVR Initialized\n");
   }
 
   Device::~Device() {
@@ -22,13 +22,13 @@ namespace nodeOculus {
     Device* obj = Nan::ObjectWrap::Unwrap<Device>(info.This());
 
     if (obj->session != NULL) {
-      printf("Destroying session.\n");
+      printf("Destroying session\n");
       ovr_Destroy(obj->session);
     }
 
-    printf("Shutting Down OVR.\n");
+    printf("Shutting Down OVR\n");
     ovr_Shutdown();
-    printf("OVR Destroyed.\n");
+    printf("OVR Destroyed\n");
   }
 
 /*
@@ -37,15 +37,15 @@ namespace nodeOculus {
 
     Device* obj = JS_OBJECT(Device, args.This());
 
-    printf("1: Detecting HMDs.\n");
+    printf("1: Detecting HMDs\n");
     int numHMDs = ovrHmd_Detect();
 
     if (numHMDs > 0) {
-      printf("2: Creating HMD.\n");
+      printf("2: Creating HMD\n");
       obj->hmd = ovrHmd_Create(0);
 
       if (obj->hmd != NULL) {
-        printf("3: HMD Created.\n");
+        printf("3: HMD Created\n");
 
         printf("4: Configuring Tracking\n");
         if (ovrHmd_ConfigureTracking(obj->hmd, ovrTrackingCap_Orientation | ovrTrackingCap_Position, 0) != 0) {
