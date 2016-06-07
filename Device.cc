@@ -31,41 +31,31 @@ namespace nodeOculus {
     printf("OVR Destroyed\n");
   }
 
-/*
-  JS_METHOD(Device, discoverSensor) {
-    SCOPE_IN;
+  NAN_METHOD(Device::discoverSensor) {
+    Device* obj = Nan::ObjectWrap::Unwrap<Device>(info.This());
 
-    Device* obj = JS_OBJECT(Device, args.This());
-
-    printf("1: Detecting HMDs\n");
-    int numHMDs = ovrHmd_Detect();
-
-    if (numHMDs > 0) {
-      printf("2: Creating HMD\n");
-      obj->hmd = ovrHmd_Create(0);
-
-      if (obj->hmd != NULL) {
-        printf("3: HMD Created\n");
-
-        printf("4: Configuring Tracking\n");
-        if (ovrHmd_ConfigureTracking(obj->hmd, ovrTrackingCap_Orientation | ovrTrackingCap_Position, 0) != 0) {
-          printf("5: Configured Tracking Successfully\n");
-
-          printf("6: Testing Tracking\n");
-          if ((ovrHmd_GetTrackingState(obj->hmd, 0.0f).StatusFlags & ovrStatus_HmdConnected)) {
-            printf("7: Sensor Connected\n");
-            SCOPE_OUT(JS_BOOL(true));
-          }
-        }
-        ovrHmd_Destroy(obj->hmd);
-      }
+    printf("1: Creating session\n");
+    ovrResult result = ovr_Create(&obj->session, &obj->luid);
+    if (!OVR_SUCCESS(result)) {
+      info.GetReturnValue().Set(Nan::False());
+      return;
     }
 
-    printf("FAILED (is the Oculus plugged in?)\n");
+    printf("2: Testing Tracking\n");
+    ovrTrackingState ts = ovr_GetTrackingState(
+      obj->session, ovr_GetTimeInSeconds(), ovrTrue);
+    if (!((ts.StatusFlags & ovrStatus_OrientationTracked) &&
+          (ts.StatusFlags & ovrStatus_PositionTracked))) {
+      ovr_Destroy(obj->session);
+      info.GetReturnValue().Set(Nan::False());
+      return;
+    }
 
-    SCOPE_OUT(JS_BOOL(false));
+    printf("3: Sensor Connected\n");
+    info.GetReturnValue().Set(Nan::True());
   }
 
+/*
   JS_METHOD(Device, getDeviceInfo) {
     SCOPE_IN;
 
@@ -345,7 +335,7 @@ namespace nodeOculus {
     tpl->InstanceTemplate()->SetInternalFieldCount(4);
 
     Nan::SetPrototypeMethod(tpl, "destroyResources", destroyResources);
-    // Nan::SetPrototypeMethod(tpl, "discoverSensor", discoverSensor);
+    Nan::SetPrototypeMethod(tpl, "discoverSensor", discoverSensor);
     // Nan::SetPrototypeMethod(tpl, "getDeviceInfo", getDeviceInfo);
     // Nan::SetPrototypeMethod(tpl, "getPositionDeltas", getPositionDeltas);
     // Nan::SetPrototypeMethod(tpl, "getOrientationQuat", getOrientationQuat);
@@ -354,7 +344,8 @@ namespace nodeOculus {
 
     // Declare constructor
     constructor.Reset(tpl);
-    Nan::Set(target, Nan::New<v8::String>("Device").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+    Nan::Set(target, Nan::New<v8::String>("Device").ToLocalChecked(),
+      Nan::GetFunction(tpl).ToLocalChecked());
   }
 
   NAN_METHOD(Device::New) {

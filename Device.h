@@ -14,8 +14,8 @@ namespace nodeOculus {
       ~Device();
 
       static NAN_METHOD(destroyResources);
-/*
       static NAN_METHOD(discoverSensor);
+/*
       static NAN_METHOD(getDeviceInfo);
       static NAN_METHOD(getPositionDeltas);
       static NAN_METHOD(getOrientationQuat);
@@ -25,6 +25,7 @@ namespace nodeOculus {
       static NAN_METHOD(New);
 
       ovrSession session;
+      ovrGraphicsLuid luid;
       float lastX;
       float lastY;
       float lastZ;
