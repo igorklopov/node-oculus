@@ -4,7 +4,7 @@ var oculus = nodeOculus.createOculus();
 
 if (oculus.discoverSensor()) {
 	logPositionDeltas();
-    logOrientation();
+	logOrientation();
 	logTrackingData();
 	printDeviceInfo(oculus.getDeviceInfo());
 	logProjectionMatrix();
@@ -40,8 +40,8 @@ function printDeviceInfo(deviceInfo) {
 	logProp('distortion');
 
 	function logProp(prop) {
-		if (Object.prototype.toString.call(deviceInfo[prop]) === '[object Array]') {
-			for (var i=0; i<deviceInfo[prop].length; i++) {
+		if (Array.isArray(deviceInfo[prop])) {
+			for (var i = 0; i < deviceInfo[prop].length; i++) {
 				console.log(prop + '[' + i + ']: ' + deviceInfo[prop][i]);
 			}
 		} else {
@@ -52,17 +52,17 @@ function printDeviceInfo(deviceInfo) {
 
 function logProjectionMatrix() {
 	var proj = oculus.getOvrMatrix4f_Projection({
-			UpTan: 1.01,
-			DownTan: 1.02,
-			LeftTan: 1.03,
-			RightTan: 1.04
-		}, 0.2, 2000, 0);
+		UpTan: 1.01,
+		DownTan: 1.02,
+		LeftTan: 1.03,
+		RightTan: 1.04
+	}, 0.2, 2000, 0);
 
-	console.log("projection matrix: ");
-	for (var i=0; i<4; i++) {
-		var str = "  ";
-		for (var j=0; j<4; j++) {
-			str += proj[4 * i + j].toFixed(6) + "  ";
+	console.log('projection matrix: ');
+	for (var i = 0; i < 4; i++) {
+		var str = '  ';
+		for (var j = 0; j < 4; j++) {
+			str += proj[4 * i + j].toFixed(6) + '  ';
 		}
 		console.log(str);
 	}

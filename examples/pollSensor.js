@@ -3,11 +3,11 @@ var nodeOculus = require('../build/Release/nodeOculus');
 var oculus = nodeOculus.createOculus();
 
 if (oculus.discoverSensor()) {
-  console.log(oculus.getDeviceInfo());
+	console.log(oculus.getDeviceInfo());
 
-  console.log('about to log some orientations');
+	console.log('about to log some orientations');
 
-  logOrientation();
+	logOrientation();
 }
 
 function logOrientation() {
@@ -18,4 +18,4 @@ function logOrientation() {
 
 // oculus.destroyResources();
 
-console.log("Test complete.\n");
+console.log('Test complete');

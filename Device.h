@@ -1,32 +1,30 @@
-#ifndef DEVICE_VR_H
-#define DEVICE_VR_H
+#ifndef DEVICE_H
+#define DEVICE_H
 
-#include <node.h>
-#include <OVR.h>
-#include "v8Macros.h"
+#include <nan.h>
+#include <OVR_CAPI.h>
 
 namespace nodeOculus {
-  class Device : public node::ObjectWrap {
+  class Device : public Nan::ObjectWrap {
     public:
-      static void Init(v8::Handle<v8::Object> exports);
-      static JS_FUNCTION(NewInstance);
+      static void Init(v8::Handle<v8::Object> target);
 
     private:
-      explicit Device();
+      Device();
       ~Device();
 
-      static JS_FUNCTION(destroyResources);
-      static JS_FUNCTION(discoverSensor);
-      static JS_FUNCTION(getDeviceInfo);
-      static JS_FUNCTION(getPositionDeltas);
-      static JS_FUNCTION(getOrientationQuat);
-      static JS_FUNCTION(getTrackingData);
-      static JS_FUNCTION(getOvrMatrix4f_Projection);
+      static NAN_METHOD(destroyResources);
+/*
+      static NAN_METHOD(discoverSensor);
+      static NAN_METHOD(getDeviceInfo);
+      static NAN_METHOD(getPositionDeltas);
+      static NAN_METHOD(getOrientationQuat);
+      static NAN_METHOD(getTrackingData);
+      static NAN_METHOD(getOvrMatrix4f_Projection);
 
-      static JS_FUNCTION(New);
-      static v8::Persistent<v8::Function> constructor;
-
-      ovrHmd hmd; // pointer
+      static NAN_METHOD(New);
+*/
+      ovrSession session;
       float lastX;
       float lastY;
       float lastZ;

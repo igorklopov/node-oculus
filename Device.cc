@@ -1,42 +1,37 @@
-#ifndef BUILDING_NODE_EXTENSION
-  #define BUILDING_NODE_EXTENSION
-#endif
-
-#include <node.h>
 #include "Device.h"
-#include <string>
 #include <sstream>
+#include <string>
+#include <nan.h>
 
 namespace nodeOculus {
-  v8::Persistent<v8::Function> Device::constructor;
+  static Nan::Persistent<v8::FunctionTemplate> constructor;
 
   Device::Device()
     : lastX(0.0), lastY(0.0), lastZ(0.0)
   {
     printf("Initializing OVR.\n");
-    ovr_Initialize();
-    printf("OVR Initialized\n");
+    ovrResult result = ovr_Initialize(nullptr);
+    // TODO check OVR_SUCCESS(result) // "Failed to initialize libOVR."
+    printf("OVR Initialized.\n");
   }
 
   Device::~Device() {
   }
 
+  NAN_METHOD(Device::destroyResources) {
+    Device* obj = Nan::ObjectWrap::Unwrap<Device>(info.This());
 
-  JS_METHOD(Device, destroyResources) {
-    SCOPE_IN;
-    Device* obj = JS_OBJECT(Device, args.This());
-
-    if (obj->hmd != NULL) {
-      printf("Destroying HMD.\n");
-      ovrHmd_Destroy(obj->hmd);
+    if (obj->session != NULL) {
+      printf("Destroying session.\n");
+      ovr_Destroy(obj->session);
     }
 
     printf("Shutting Down OVR.\n");
     ovr_Shutdown();
     printf("OVR Destroyed.\n");
-    SCOPE_OUT(JS_BOOL(true));
   }
 
+/*
 
   JS_METHOD(Device, discoverSensor) {
     SCOPE_IN;
@@ -379,5 +374,7 @@ namespace nodeOculus {
 
     SCOPE_OUT(instance);
   }
-}
 
+*/
+
+}
