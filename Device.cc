@@ -11,7 +11,10 @@ namespace nodeOculus {
   {
     printf("Initializing OVR\n");
     ovrResult result = ovr_Initialize(nullptr);
-    // TODO check OVR_SUCCESS(result) // "Failed to initialize libOVR"
+    if (!OVR_SUCCESS(result)) {
+      printf("OVR Not Initialized: %d\n", result);
+      return;
+    }
     printf("OVR Initialized\n");
   }
 
@@ -22,7 +25,7 @@ namespace nodeOculus {
     Device* obj = Nan::ObjectWrap::Unwrap<Device>(info.This());
 
     if (obj->session != NULL) {
-      printf("Destroying session\n");
+      printf("Destroying Session\n");
       ovr_Destroy(obj->session);
     }
 
@@ -34,9 +37,10 @@ namespace nodeOculus {
   NAN_METHOD(Device::discoverSensor) {
     Device* obj = Nan::ObjectWrap::Unwrap<Device>(info.This());
 
-    printf("1: Creating session\n");
+    printf("1: Creating Session\n");
     ovrResult result = ovr_Create(&obj->session, &obj->luid);
     if (!OVR_SUCCESS(result)) {
+      printf("Session Not Created: %d\n", result);
       info.GetReturnValue().Set(Nan::False());
       return;
     }
