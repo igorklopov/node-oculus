@@ -260,14 +260,6 @@ namespace nodeOculus {
 
     ovrTrackingState ts = ovr_GetTrackingState(
       obj->session, ovr_GetTimeInSeconds(), ovrTrue);
-    if (!((ts.StatusFlags & ovrStatus_OrientationTracked) &&
-          (ts.StatusFlags & ovrStatus_PositionTracked))) {
-      if (ts.StatusFlags & ovrStatus_OrientationTracked) {
-        printf("Headset is out of tracker view\n");
-      }
-      info.GetReturnValue().Set(Nan::Null());
-      return;
-    }
 
     v8::Local<v8::Object> result = Nan::New<v8::Object>();
     v8::Local<v8::Object> headPose = Nan::New<v8::Object>();
@@ -277,24 +269,34 @@ namespace nodeOculus {
     v8::Local<v8::Object> headPoseThePoseOrientation = Nan::New<v8::Object>();
     Nan::Set(headPoseThePose, Nan::New<v8::String>("orientation").ToLocalChecked(), headPoseThePoseOrientation);
 
-    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("x").ToLocalChecked(),
-      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.x));
-    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("y").ToLocalChecked(),
-      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.y));
-    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("z").ToLocalChecked(),
-      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.z));
-    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("w").ToLocalChecked(),
-      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.w));
+    if (ts.StatusFlags & ovrStatus_OrientationTracked) {
+      Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("x").ToLocalChecked(),
+        Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.x));
+      Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("y").ToLocalChecked(),
+        Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.y));
+      Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("z").ToLocalChecked(),
+        Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.z));
+      Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("w").ToLocalChecked(),
+        Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.w));
+    } else {
+      Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("error").ToLocalChecked(),
+        Nan::New<v8::String>("Orientation not tracked").ToLocalChecked());
+    }
 
     v8::Local<v8::Object> headPoseThePosePosition = Nan::New<v8::Object>();
     Nan::Set(headPoseThePose, Nan::New<v8::String>("position").ToLocalChecked(), headPoseThePosePosition);
 
-    Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("x").ToLocalChecked(),
-      Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.x));
-    Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("y").ToLocalChecked(),
-      Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.y));
-    Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("z").ToLocalChecked(),
-      Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.z));
+    if (ts.StatusFlags & ovrStatus_OrientationTracked) {
+      Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("x").ToLocalChecked(),
+        Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.x));
+      Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("y").ToLocalChecked(),
+        Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.y));
+      Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("z").ToLocalChecked(),
+        Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.z));
+    } else {
+      Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("error").ToLocalChecked(),
+        Nan::New<v8::String>("Position not tracked").ToLocalChecked());
+    }
 
 /*
     if (obj->hmd != NULL) {
