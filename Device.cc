@@ -45,17 +45,7 @@ namespace nodeOculus {
       return;
     }
 
-    printf("2: Testing Tracking\n");
-    ovrTrackingState ts = ovr_GetTrackingState(
-      obj->session, ovr_GetTimeInSeconds(), ovrTrue);
-    if (!((ts.StatusFlags & ovrStatus_OrientationTracked) &&
-          (ts.StatusFlags & ovrStatus_PositionTracked))) {
-      ovr_Destroy(obj->session);
-      info.GetReturnValue().Set(Nan::False());
-      return;
-    }
-
-    printf("3: Sensor Connected\n");
+    printf("2: Session Created\n");
     info.GetReturnValue().Set(Nan::True());
   }
 
@@ -263,15 +253,50 @@ namespace nodeOculus {
 
     SCOPE_OUT(res);
   }
+*/
 
-  JS_METHOD(Device, getTrackingData) {
-    SCOPE_IN;
+  NAN_METHOD(Device::getTrackingData) {
+    Device* obj = Nan::ObjectWrap::Unwrap<Device>(info.This());
 
-    Device * obj = JS_OBJECT(Device, args.This());
-    
-    ovrTrackingState trackingInfo;
-    std::string data = "";
+    ovrTrackingState ts = ovr_GetTrackingState(
+      obj->session, ovr_GetTimeInSeconds(), ovrTrue);
+    if (!((ts.StatusFlags & ovrStatus_OrientationTracked) &&
+          (ts.StatusFlags & ovrStatus_PositionTracked))) {
+      if (ts.StatusFlags & ovrStatus_OrientationTracked) {
+        printf("Headset is out of tracker view\n");
+      }
+      info.GetReturnValue().Set(Nan::Null());
+      return;
+    }
 
+    v8::Local<v8::Object> result = Nan::New<v8::Object>();
+    v8::Local<v8::Object> headPose = Nan::New<v8::Object>();
+    Nan::Set(result, Nan::New<v8::String>("headPose").ToLocalChecked(), headPose);
+    v8::Local<v8::Object> headPoseThePose = Nan::New<v8::Object>();
+    Nan::Set(headPose, Nan::New<v8::String>("thePose").ToLocalChecked(), headPoseThePose);
+    v8::Local<v8::Object> headPoseThePoseOrientation = Nan::New<v8::Object>();
+    Nan::Set(headPoseThePose, Nan::New<v8::String>("orientation").ToLocalChecked(), headPoseThePoseOrientation);
+
+    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("x").ToLocalChecked(),
+      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.x));
+    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("y").ToLocalChecked(),
+      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.y));
+    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("z").ToLocalChecked(),
+      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.z));
+    Nan::Set(headPoseThePoseOrientation, Nan::New<v8::String>("w").ToLocalChecked(),
+      Nan::New<v8::Number>(ts.HeadPose.ThePose.Orientation.w));
+
+    v8::Local<v8::Object> headPoseThePosePosition = Nan::New<v8::Object>();
+    Nan::Set(headPoseThePose, Nan::New<v8::String>("position").ToLocalChecked(), headPoseThePosePosition);
+
+    Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("x").ToLocalChecked(),
+      Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.x));
+    Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("y").ToLocalChecked(),
+      Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.y));
+    Nan::Set(headPoseThePosePosition, Nan::New<v8::String>("z").ToLocalChecked(),
+      Nan::New<v8::Number>(ts.HeadPose.ThePose.Position.z));
+
+/*
     if (obj->hmd != NULL) {
       trackingInfo = ovrHmd_GetTrackingState(obj->hmd, 0.0f);
       data += ".HeadPose\n";
@@ -324,11 +349,10 @@ namespace nodeOculus {
       data += "      " + toString<float>(trackingInfo.LeveledCameraPose.Position.y) + "\n";
       data += "      " + toString<float>(trackingInfo.LeveledCameraPose.Position.z) + " ]\n";
     }
-
-    v8::Local<v8::String> res = v8::String::New(data.c_str(), data.length());
-    SCOPE_OUT(res);
-  }
 */
+
+    info.GetReturnValue().Set(result);
+  }
 
   void Device::Init(v8::Handle<v8::Object> target) {
     Nan::HandleScope scope;
@@ -343,7 +367,7 @@ namespace nodeOculus {
     // Nan::SetPrototypeMethod(tpl, "getDeviceInfo", getDeviceInfo);
     // Nan::SetPrototypeMethod(tpl, "getPositionDeltas", getPositionDeltas);
     // Nan::SetPrototypeMethod(tpl, "getOrientationQuat", getOrientationQuat);
-    // Nan::SetPrototypeMethod(tpl, "getTrackingData", getTrackingData);
+    Nan::SetPrototypeMethod(tpl, "getTrackingData", getTrackingData);
     // Nan::SetPrototypeMethod(tpl, "getOvrMatrix4f_Projection", getOvrMatrix4f_Projection);
 
     // Declare constructor

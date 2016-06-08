@@ -2,11 +2,11 @@ var Oculus = require('../').Device;
 var oculus = new Oculus();
 
 if (oculus.discoverSensor()) {
-	logPositionDeltas();
-	logOrientation();
+	// logPositionDeltas();
+	// logOrientation();
 	logTrackingData();
-	printDeviceInfo(oculus.getDeviceInfo());
-	logProjectionMatrix();
+	// printDeviceInfo(oculus.getDeviceInfo());
+	// logProjectionMatrix();
 }
 
 function logPositionDeltas() {
@@ -22,7 +22,7 @@ function logOrientation() {
 }
 
 function logTrackingData() {
-	console.log(oculus.getTrackingData());
+	console.log(JSON.stringify(oculus.getTrackingData(), null, 2));
 	setTimeout(logTrackingData, 500);
 }
 
